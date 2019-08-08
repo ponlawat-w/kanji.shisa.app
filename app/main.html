@@ -1,0 +1,108 @@
+<div id="app" class="my-4 container">
+  <div v-if="!jisentaku">
+    <h3>漢字検索</h3>
+    <label>
+      <input type="text" v-model="kensakuKeyword" placeholder="漢字を検索">
+    </label>
+    <div v-if="kensakuKanjis.length">
+      <button type="button" class="btn btn-sm btn-outline-primary" v-for="k in kensakuKanjis" @click="sentaku(k);">{{k}}</button>
+    </div>
+    <hr>
+  </div>
+  <div class="jisentaku row" v-if="jisentaku">
+    <div class="col-12 col-md-6 offset-md-3 text-center">
+      <h1>{{jisentaku}}</h1>
+      <p>
+        <button type="button" class="btn btn-lg btn-outline-primary w-100" @click="addKumiawase();">
+          組み合わせに追加
+        </button>
+      </p>
+      <p>
+        <button type="button" class="btn btn-lg btn-outline-primary w-100" @click="kensakuAction();">
+          検索
+        </button>
+      </p>
+    </div>
+  </div>
+  <div class="kumiawase" v-if="!jisentaku && kumiawaseParts.length">
+    <h3>部首組み合わせ</h3>
+    <div class="my-3">
+      <div v-for="(part, i) in kumiawaseParts" class="btn-group mr-3">
+        <button type="button" class="btn btn-sm btn-outline-primary">{{part}}</button>
+        <button type="button" class="btn btn-sm btn-outline-dark" @click.prevent="deleteKumiawase(i);">
+          ×
+        </button>
+      </div>
+    </div>
+    <div class="my-3">
+      <button type="button" class="btn btn-outline-danger" @click="clearKumiawase();">
+        リセット
+      </button>
+      <button type="button" class="btn btn-primary" @click="actionKumiawase();">
+        組み合わせ検索
+      </button>
+    </div>
+    <div v-if="kumiawasechuu">
+      検索中…
+    </div>
+    <div v-else>
+      <div v-if="kumiawaseError" class="alert alert-danger">
+        {{kumiawaseError}}
+      </div>
+      <div v-if="kumiawaseResults.length">
+        <button type="button" v-for="k in kumiawaseResults" class="btn btn-lg btn-outline-dark p-1 px-3" @click="sentaku(k);">{{k}}</button>
+      </div>
+      <div v-else class="text-secondary">
+        結果がありません。
+      </div>
+    </div>
+    <hr>
+  </div>
+  <div class="kensaku" v-if="!jisentaku">
+    <p v-if="kensakuchuu">
+      検索中…
+    </p>
+    <div v-if="kensakuError" class="alert alert-danger">
+      × {{kensakuError}}
+    </div>
+    <div v-if="!kensakuchuu && kensakuKanji">
+      <div class="row">
+        <div class="col-12 col-sm-1">
+          <h1>{{kensakuKanji.kanji}}</h1>
+        </div>
+        <div class="col-12 col-sm-11">
+          <div class="row">
+            <div class="col-12 col-lg-3 font-weight-bold">
+              ブロック付き構成：
+            </div>
+            <div class="col-12 col-lg-9 ml-4 ml-lg-0">
+              <div v-for="structure in kensakuKanji.structuresWithCJKV">
+                {{structure}}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12 col-lg-3 font-weight-bold">
+              ブロック無し構成：
+            </div>
+            <div class="col-12 col-lg-9 ml-4 ml-lg-0">
+              <div v-for="structure in kensakuKanji.structuresWithoutCJKV">
+                {{structure}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 my-3">
+          <h4>部首</h4>
+          <button type="button" class="btn btn-lg btn-outline-dark p-1 px-3" v-for="part in kensakuKanji.minorParts" @click="sentaku(part);">{{part}}</button>
+          <div v-if="!kensakuKanji.minorParts.length" class="text-secondary">部首がありません。</div>
+        </div>
+        <div class="col-12 my-3">
+          <h4>構成漢字</h4>
+          <button type="button" class="btn btn-lg btn-outline-dark p-1 px-3" v-for="part in kensakuKanji.majorParts" @click="sentaku(part);">{{part}}</button>
+          <div v-if="!kensakuKanji.majorParts.length" class="text-secondary">構成漢字がありません。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
