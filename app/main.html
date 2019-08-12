@@ -1,71 +1,135 @@
 <div id="app" class="my-4 container">
-  <div v-if="!jisentaku">
-    <h3>漢字検索</h3>
-    <label>
-      <input type="text" v-model="kensakuKeyword" placeholder="漢字を検索">
-    </label>
-    <div v-if="kensakuKanjis.length">
-      <button type="button" class="btn btn-sm btn-outline-primary" v-for="k in kensakuKanjis" @click="sentaku(k);">{{k}}</button>
-    </div>
-    <hr>
-  </div>
-  <div class="jisentaku row" v-if="jisentaku">
+  <div id="jisentaku" class="jisentaku row" v-if="jisentaku" tabindex="10"
+    @focus="jisentakuFocused = true;"
+    @blur="jisentakuFocused = false;"
+    @keyup="jisentakuKey">
     <div class="col-12 col-md-6 offset-md-3 text-center">
       <h1>{{jisentaku}}</h1>
       <p>
-        <button type="button" class="btn btn-lg btn-outline-primary w-100" @click="addKumiawase();">
-          組み合わせに追加
+        <button type="button" class="btn btn-lg btn-outline-primary w-100" @click="addKumiawase();" tabindex="11"
+          :disabled="!kumiawaseAddable">
+          <small class="float-left" v-if="jisentakuFocused">A</small>
+          เพิ่ม {{jisentaku}} ในการค้นหาส่วนประกอบ
         </button>
       </p>
       <p>
-        <button type="button" class="btn btn-lg btn-outline-primary w-100" @click="kensakuAction();">
-          検索
+        <button type="button" class="btn btn-lg btn-outline-primary w-100" @click="kensakuAction();" tabindex="12">
+          <small class="float-left" v-if="jisentakuFocused">S</small>
+          ดูรายละเอียดของ {{jisentaku}}
+        </button>
+      </p>
+      <p>
+        <a :href="jishoUrl" class="btn btn-lg btn-outline-primary w-100" tabindex="13">
+          <small class="float-left" v-if="jisentakuFocused">J</small>
+          ค้นหา {{jisentaku}} ใน jisho.org
+        </a>
+      </p>
+      <p>
+        <button type="button" class="btn btn-lg btn-outline-secondary w-100" @click="sentaku(null);" tabindex="14">
+          <small class="float-left" v-if="jisentakuFocused">Esc</small>
+          ยกเลิก
         </button>
       </p>
     </div>
   </div>
-  <div class="kumiawase" v-if="!jisentaku && kumiawaseParts.length">
-    <h3>部首組み合わせ</h3>
-    <div class="my-3">
-      <div v-for="(part, i) in kumiawaseParts" class="btn-group mr-3">
-        <button type="button" class="btn btn-sm btn-outline-primary">{{part}}</button>
-        <button type="button" class="btn btn-sm btn-outline-dark" @click.prevent="deleteKumiawase(i);">
-          ×
-        </button>
+  <div v-if="!jisentaku">
+    <div class="row">
+      <div id="kensaku" class="col-12 col-sm-4"
+        @focus="kensakuFocused = true;"
+        @blur="kensakuFocused = false;"
+        @keyup="kensakuKey" tabindex="20">
+        <div>
+          <h3 class="d-inline">
+            ค้นหาอักษร
+          </h3>
+          <small class="text-secondary d-none d-md-block d-lg-inline">Ctrl + Shift + S</small>
+        </div>
+        <label>
+          <input id="kensakuKeyword" type="text" v-model="kensakuKeyword" maxlength="10" tabindex="21">
+        </label>
+        <div v-if="kensakuKanjis.length" tabindex="22" id="kensakuKanjis"
+          @focus="kensakuFocused = true;"
+          @blur="kensakuFocused = false;">
+          <button type="button" class="btn btn-sm btn-outline-dark" v-for="(k, i) in kensakuKanjis" @click="sentaku(k);" :tabindex="23 + i">
+            <small v-if="kensakuFocused">
+              {{numKeys[i]}}
+            </small>
+            {{k}}
+          </button>
+        </div>
       </div>
-    </div>
-    <div class="my-3">
-      <button type="button" class="btn btn-outline-danger" @click="clearKumiawase();">
-        リセット
-      </button>
-      <button type="button" class="btn btn-primary" @click="actionKumiawase();">
-        組み合わせ検索
-      </button>
-    </div>
-    <div v-if="kumiawasechuu">
-      検索中…
-    </div>
-    <div v-else>
-      <div v-if="kumiawaseError" class="alert alert-danger">
-        {{kumiawaseError}}
-      </div>
-      <div v-if="kumiawaseResults.length">
-        <button type="button" v-for="k in kumiawaseResults" class="btn btn-lg btn-outline-dark p-1 px-3" @click="sentaku(k);">{{k}}</button>
-      </div>
-      <div v-else class="text-secondary">
-        結果がありません。
+      <div class="col-12 col-sm-8">
+        <div class="kumiawase" v-if="!jisentaku && kumiawaseParts.length" id="kumiawase" tabindex="100"
+          @focus="kumiawaseFocused = true;"
+          @blur="kumiawaseFocused = false;"
+          @keypress="kumiawaseKey">
+          <div>
+            <h3 class="d-inline">
+              ค้นหาจากส่วนประกอบ
+            </h3>
+            <small class="text-secondary d-none d-md-block d-lg-inline">Ctrl + Shift + K</small>
+          </div>
+          <div class="my-3">
+            <div v-for="(part, i) in kumiawaseParts" class="btn-group mr-3">
+              <button type="button" class="btn btn-sm btn-primary" tabindex="-1">{{part}}</button>
+              <button type="button" class="btn btn-sm btn-outline-danger"
+                @click.prevent="deleteKumiawase(i);" tabindex="101 + i">
+                ×
+              </button>
+            </div>
+          </div>
+          <div class="my-3">
+            <button type="button" class="btn btn-outline-danger" @click="clearKumiawase();">
+              <small v-if="kumiawaseFocused">C</small>
+              ล้าง
+            </button>
+            <button type="button" class="btn btn-success" @click="actionKumiawase();">
+              <small v-if="kumiawaseFocused">S</small>
+              ค้นหา
+            </button>
+          </div>
+          <div v-if="kumiawasechuu">
+            กำลังค้นหา…
+          </div>
+          <div v-else>
+            <div v-if="kumiawaseError" class="alert alert-danger">
+              {{kumiawaseError}}
+            </div>
+            <div v-if="kumiawaseResults.length">
+              <p class="fonr-weight-bold">
+                รายการผลลัพธ์ <small>(L)</small>
+              </p>
+              <kanjis-list
+                mainid="kumiawaseResults"
+                :list="kumiawaseResults"
+                :starttabindex="200"
+                @setfocus="focus"
+                @setsentaku="sentaku"></kanjis-list>
+            </div>
+            <div v-else class="text-secondary">
+              ไม่พบผลลัพธ์
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <hr>
   </div>
-  <div class="kensaku" v-if="!jisentaku">
+  <div id="kensakuResults" class="kensaku" v-if="!jisentaku" tabindex="20000"
+    @focus="kensakuResultFocused = true;"
+    @blur="kensakuResultFocused = false;"
+    @keypress="kensakuResultKey">
     <p v-if="kensakuchuu">
-      検索中…
+      กำลังค้นหา…
     </p>
     <div v-if="kensakuError" class="alert alert-danger">
       × {{kensakuError}}
     </div>
     <div v-if="!kensakuchuu && kensakuKanji">
+      <div>
+        <h3 class="d-inline">ข้อมูล</h3>
+        <small class="small text-secondary pl-2 d-none d-md-block d-lg-inline">Ctrl + I</small>
+      </div>
       <div class="row">
         <div class="col-12 col-sm-1">
           <h1>{{kensakuKanji.kanji}}</h1>
@@ -73,7 +137,7 @@
         <div class="col-12 col-sm-11">
           <div class="row">
             <div class="col-12 col-lg-3 font-weight-bold">
-              ブロック付き構成：
+              โครงสร้าง：
             </div>
             <div class="col-12 col-lg-9 ml-4 ml-lg-0">
               <div v-for="structure in kensakuKanji.structuresWithCJKV">
@@ -83,7 +147,7 @@
           </div>
           <div class="row">
             <div class="col-12 col-lg-3 font-weight-bold">
-              ブロック無し構成：
+              โครงสร้าง：
             </div>
             <div class="col-12 col-lg-9 ml-4 ml-lg-0">
               <div v-for="structure in kensakuKanji.structuresWithoutCJKV">
@@ -91,16 +155,48 @@
               </div>
             </div>
           </div>
+          <div class="row">
+            <div class="col-12">
+              <button type="button" @click="sentaku(kensakuKanji.kanji);" class="btn btn-sm btn-outline-secondary"
+                tabindex="20001">
+                {{kensakuKanji.kanji}}
+                <small v-if="kensakuResultFocused">
+                  (K)
+                </small>
+              </button>
+            </div>
+          </div>
         </div>
         <div class="col-12 my-3">
-          <h4>部首</h4>
-          <button type="button" class="btn btn-lg btn-outline-dark p-1 px-3" v-for="part in kensakuKanji.minorParts" @click="sentaku(part);">{{part}}</button>
-          <div v-if="!kensakuKanji.minorParts.length" class="text-secondary">部首がありません。</div>
+          <div>
+            <h4 class="d-inline">ส่วนประกอบของ {{kensakuKanji.kanji}}</h4>
+            <small class="d-inline small text-secondary" v-if="kensakuResultFocused">(B)</small>
+          </div>
+          <div v-if="!minorParts.length" class="text-secondary">ไม่มี</div>
+          <div v-else>
+            <kanjis-list
+              mainid="minorParts"
+              :list="minorParts"
+              :starttabindex="30000"
+              @setfocus="focus"
+              @setsentaku="sentaku"></kanjis-list>
+          </div>
         </div>
         <div class="col-12 my-3">
-          <h4>構成漢字</h4>
+          <div>
+            <h4 class="d-inline">{{kensakuKanji.kanji}} เป็นส่วนประกอบของ</h4>
+            <small class="d-inline small text-secondary" v-if="kensakuResultFocused">(P)</small>
+          </div>
           <button type="button" class="btn btn-lg btn-outline-dark p-1 px-3" v-for="part in kensakuKanji.majorParts" @click="sentaku(part);">{{part}}</button>
-          <div v-if="!kensakuKanji.majorParts.length" class="text-secondary">構成漢字がありません。</div>
+          <div v-if="!majorParts.length" class="text-secondary">ไม่มี</div>
+          <div v-else>
+            <kanjis-list
+              mainid="majorParts"
+              :list="majorParts"
+              :starttabindex="40000"
+              @setfocus="focus"
+              @setsentaku="sentaku"></kanjis-list>
+          </div>
         </div>
       </div>
     </div>

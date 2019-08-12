@@ -1,0 +1,14 @@
+<div>
+  <div v-for="(kanjis, index) in list" :id="mainid + index" :tabindex="starttabindex + (10 * index)"
+    @focus="focused = index;" @keyup.prevent="lineKey">
+    <button type="button" class="btn btn-lg btn-outline-dark p-1"
+      v-for="(kanji, i) in kanjis"
+      :tabindex="i + starttabindex + (10 * index)"
+      @click="sentaku(kanji);">
+      <small v-if="focused == index" class="d-block small">
+        {{numKeys[i]}}
+      </small>
+      {{kanji}}
+    </button>
+  </div>
+</div>
