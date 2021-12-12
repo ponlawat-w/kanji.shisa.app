@@ -4,9 +4,9 @@ const numKeyToIndex = val => {
   const idx = (val - 1) % 10;
   return idx < 0 ? idx + 10 : idx;
 };
-const catchError = (r) => { document.body.innerHTML = '<div style="text-align: center; color: #ff0000">× エラー</div>'; };
+const catchError = () => { document.body.innerHTML = '<div style="text-align: center; color: #ff0000">× エラー</div>'; };
 const getErrorMessage = response => response.data && response.data.status ? response.data.status : 'Error';
-const prevent = (e) => { e.stopImmediatePropagation(); e.preventDefault(); };
+const prevent = (e) => { e.stopPropagation(); e.stopImmediatePropagation(); e.preventDefault(); };
 const chunkArray = (arr, size = 10) => {
   const results = [];
   while (arr.length) {
@@ -211,24 +211,39 @@ const initMain = () => new Vue({
           this.focus('majorParts0'); break;
       }
     },
-    keyup: function(e) {
+    keyupdown: function(e) {
       if (e.ctrlKey && e.shiftKey) {
-        switch (e.key) {
-          case 'S':
-            this.sentaku(null);
-            this.focus('kensaku');
+        switch (e.key.toLowerCase()) {
+          case 's':
+            if (e.type === 'keyup') {
+              this.sentaku(null);
+              this.focus('kensaku');
+            }
             break;
-          case 'K':
-            this.sentaku(null);
-            this.focus('kumiawase');
+          case 'k':
+            if (e.type === 'keyup') {
+              this.sentaku(null);
+              this.focus('kumiawase');
+            }
             break;
+          default:
+            return;
         }
       } else if (e.ctrlKey) {
         switch (e.key) {
           case 'i':
-            this.focus('kensakuResults');
+            if (e.type === 'keyup') {
+              this.focus('kensakuResults');
+            }
             break;
+          default:
+            return;
         }
+      } else {
+        return;
+      }
+      if (e.type === 'keydown') {
+        prevent(e);
       }
     }
   },
@@ -258,7 +273,8 @@ const initMain = () => new Vue({
   },
   mounted: function() {
     this.focus('kensakuKeyword');
-    document.addEventListener('keyup', this.keyup);
+    document.addEventListener('keyup', this.keyupdown);
+    document.addEventListener('keydown', this.keyupdown);
   },
   updated: function() {
     for (let i = 0; i < this.focusList.length; i++) {
