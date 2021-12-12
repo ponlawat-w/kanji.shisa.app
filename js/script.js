@@ -115,6 +115,8 @@ const initMain = () => new Vue({
           this.addKumiawase(); this.focus('kensakuKeyword'); break;
         case 's':
           this.kensakuAction(); this.focus('kensakuKeyword'); break;
+        case 'c':
+          this.copyToClipboard(); this.focus('kensakuKeyword'); break;
         case 'j':
           if (e.altKey) { window.open(this.jishoUrl); } else { window.location = this.jishoUrl; } break;
         case 'Escape':
@@ -153,6 +155,17 @@ const initMain = () => new Vue({
           this.kensakuchuu = false;
         });
       }
+    },
+    copyToClipboard: function() {
+      if (!navigator.clipboard) {
+        alert('ไม่สามารถคัดลอกได้');
+        this.kensakuKeyword = this.jisentaku;
+        this.jisentaku = null;
+        return;
+      }
+      navigator.clipboard.writeText(this.jisentaku).then(function() {
+        this.jisentaku = null;
+      }.bind(this));
     },
     addKumiawase: function() {
       if (this.jisentaku && this.kumiawaseAddable) {

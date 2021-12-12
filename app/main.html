@@ -19,13 +19,19 @@
         </button>
       </p>
       <p>
-        <a :href="jishoUrl" class="btn btn-lg btn-outline-primary w-100" tabindex="13">
+        <button type="button" class="btn btn-lg btn-outline-primary w-100" @click="copyToClipboard();" tabindex="13">
+          <small class="float-left" v-if="jisentakuFocused">C</small>
+          คัดลอก {{jisentaku}} ไปยังคลิปบอร์ด
+        </button>
+      </p>
+      <p>
+        <a :href="jishoUrl" class="btn btn-lg btn-outline-primary w-100" tabindex="14">
           <small class="float-left" v-if="jisentakuFocused">J</small>
           ค้นหา {{jisentaku}} ใน jisho.org
         </a>
       </p>
       <p>
-        <button type="button" class="btn btn-lg btn-outline-secondary w-100" @click="sentaku(null);" tabindex="14">
+        <button type="button" class="btn btn-lg btn-outline-secondary w-100" @click="sentaku(null);" tabindex="15">
           <small class="float-left" v-if="jisentakuFocused">Esc</small>
           ยกเลิก
         </button>
